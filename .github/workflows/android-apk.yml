@@ -10,12 +10,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: stable
-      - run: flutter pub get
-      - run: flutter build apk --debug
-      - uses: actions/upload-artifact@v4
+
+      # Create the missing Android/iOS folders (gradle, Xcode files, etc.)
+      - name: Generate platform folders
+        run: flutter create . --platforms=android,ios
+
+      # Optional: bump minSdk if needed by plugins
+      - name: Set minSdkVersion to 24
+        run: sed -i 's/minSdkVersion [0-9]\+/minSdkVersion 24/' android/app/build.gradle || true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
         with:
           name: app-debug.apk
           path: build/app/outputs/flutter-apk/app-debug.apk
