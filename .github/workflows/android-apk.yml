@@ -8,22 +8,43 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # JDK 17 is required by modern Android Gradle Plugin
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      # Install Android SDK + accept licenses
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          sdkmanager --install "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          yes | sdkmanager --licenses
+
+      # Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: stable
 
-      # Create the missing Android/iOS folders (gradle, Xcode files, etc.)
+      # Generate platform folders (android/ gradle files, etc.)
       - name: Generate platform folders
         run: flutter create . --platforms=android,ios
 
-      # Optional: bump minSdk if needed by plugins
-      - name: Set minSdkVersion to 24
-        run: sed -i 's/minSdkVersion [0-9]\+/minSdkVersion 24/' android/app/build.gradle || true
+      # Optional: raise minSdk for compatibility
+      - name: Ensure minSdkVersion 24
+        run: |
+          sed -i 's/minSdkVersion [0-9]\+/minSdkVersion 24/' android/app/build.gradle || true
 
-      - name: Install dependencies
+      - name: Get dependencies
         run: flutter pub get
 
       - name: Build debug APK
