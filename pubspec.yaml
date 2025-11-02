@@ -1,0 +1,21 @@
+
+name: hisaan_flutter_wrapper
+description: Cross‑platform wrapper for https://erp.hisaaninternational.com using flutter_inappwebview.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_inappwebview: ^6.1.5
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
